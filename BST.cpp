@@ -339,6 +339,8 @@ void rootRemoval(){
   cout <<  tree + "\n";
 }
 
+//g++ -g BST.cpp -o BST. make sure to include -g flag to utilize gdb properly
+//testing
 int main() 
 {
   leftRemoval();
