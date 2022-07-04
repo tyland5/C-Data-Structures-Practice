@@ -220,19 +220,6 @@ class BinarySearchTree{
       return depth;
     }
 
-    //currently only prints right nodes for testing purposes
-    string toString(){
-      BSTNode<T> *currentNode = root;
-      string output = "";
-      while(currentNode != nullptr){
-        output += to_string(currentNode -> value) + " - ";
-        //cout << "to string section: " << currentNode -> value<< "\n";
-        cout << output + "\n";
-        currentNode = currentNode -> right;
-      }
-      output += "NULL";
-      return output;
-    }
     
     string inOrderTraversalString(){
       if(root == nullptr){
