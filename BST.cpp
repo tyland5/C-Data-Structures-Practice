@@ -22,7 +22,6 @@ class BSTNode{
 template <class T>
 class BinarySearchTree{
   private:
-    int depth = 0;
     BSTNode<T> *root = nullptr;
     
     string inorderTraversalHelper(BSTNode<T> *node){
@@ -82,7 +81,6 @@ class BinarySearchTree{
       if(root == nullptr){
         root = node;
         root->parent = nullptr; 
-        depth += 1;
         return;
       }
 
@@ -110,7 +108,7 @@ class BinarySearchTree{
         }
       }
 
-      depth = depth < counter ? counter : depth;
+      //depth = depth < counter ? counter : depth;
     }
 
 
@@ -214,10 +212,6 @@ class BinarySearchTree{
       else{
         cout << "This node could not be removed as it does not exist\n";
       }
-    }
-
-    int getDepth(){
-      return depth;
     }
 
     
