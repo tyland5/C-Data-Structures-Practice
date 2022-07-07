@@ -23,7 +23,8 @@ template <class T>
 class BinarySearchTree{
   private:
     BSTNode<T> *root = nullptr;
-    
+    int (*comparator)(T,T);
+
     string inorderTraversalHelper(BSTNode<T> *node){
       string output = "";
       if(node->left != nullptr){
@@ -46,10 +47,10 @@ class BinarySearchTree{
       BSTNode<T> *currentNode = root;
 
       while(currentNode != nullptr){
-        if(value > currentNode -> value){
+        if(comparator(value, currentNode -> value) > 0){
           currentNode = currentNode -> right;
         }
-        else if(value < currentNode -> value){
+        else if(comparator(value, currentNode -> value) < 0){
           currentNode = currentNode -> left;
         }
         else{
@@ -75,6 +76,10 @@ class BinarySearchTree{
     }
   public:
     
+    BinarySearchTree(int(*function)(T,T)){
+      comparator = function;
+    }
+
     void insert(T value){
       BSTNode<T> *node = new BSTNode(value); //VERY IMPORTANT. need to dynamically allocate, otherwise errors because stack
       
@@ -89,7 +94,7 @@ class BinarySearchTree{
 
       while(true){
         counter += 1;
-        if(value > currentNode -> value){
+        if(comparator(value, currentNode -> value) > 0){
           if(currentNode -> right == nullptr){
             currentNode -> right = node;
             node -> parent = currentNode;
@@ -143,7 +148,7 @@ class BinarySearchTree{
           }
 
           //update parent node
-          if(replacement -> value <= node -> parent -> value){
+          if(comparator(replacement -> value, node -> parent -> value) <= 0){
             node ->parent -> left = replacement;
           }
           else{
@@ -181,7 +186,7 @@ class BinarySearchTree{
           }
 
           //update parent node
-          if(replacement -> value <= node -> parent -> value){
+          if(comparator(replacement -> value, node -> parent -> value) <= 0){
             node ->parent -> left = replacement;
           }
           else{
@@ -199,7 +204,7 @@ class BinarySearchTree{
             return;
           }
 
-          if(replacement -> value <= node -> parent -> value){
+          if(comparator(replacement -> value, node -> parent -> value) <= 0){
             node ->parent -> left = nullptr;
           }
           else{
@@ -224,9 +229,13 @@ class BinarySearchTree{
 };
 
 
+int compareInt(int x, int y){
+  return x - y;
+}
+
 //simple
 void leftRemoval(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(12);
   bst.insert(6);
   bst.insert(8);
@@ -240,7 +249,7 @@ void leftRemoval(){
 
 //harder
 void leftRemoval2(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(12);
   bst.insert(6);
   bst.insert(8);
@@ -254,7 +263,7 @@ void leftRemoval2(){
 }
 
 void leftRemoval3(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(13);
   bst.insert(7);
   bst.insert(9);
@@ -270,7 +279,7 @@ void leftRemoval3(){
 
 
 void rightRemoval1(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(6);
   bst.insert(8);
   bst.insert(10);
@@ -280,7 +289,7 @@ void rightRemoval1(){
 }
 
 void rightRemoval2(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(6);
   bst.insert(8);
   bst.insert(15);
@@ -291,7 +300,7 @@ void rightRemoval2(){
 }
 
 void rightRemoval3(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(6);
   bst.insert(8);
   bst.insert(15);
@@ -303,7 +312,7 @@ void rightRemoval3(){
 }
 
 void rootRemoval(){
-  BinarySearchTree<int> bst;
+  BinarySearchTree<int> bst(compareInt);
   bst.insert(6);
   bst.insert(5);
   bst.insert(7);
