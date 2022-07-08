@@ -3,8 +3,6 @@
 using namespace std;
 
 
-//if i want to accurately track depth, each node would have to include a depth. would help with implementing an AVL tree
-//kind of overkill for a binary search tree though
 template <class T>
 class BSTNode{
       template <class U> friend class BinarySearchTree;
