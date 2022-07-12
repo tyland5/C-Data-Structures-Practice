@@ -32,14 +32,14 @@ class AVLTree{
         output += inorderTraversalHelper(node->left);// recursive call. 
       }
       
-      output += to_string(node -> value) + " - ";
+      output += to_string(node -> value) + " with height: " + to_string(node->height) + "\n";
       
       if(node->right != nullptr){
         output += inorderTraversalHelper(node->right);
       }
 
       if(node == root){ 
-        output += "end";
+        output += "end\n\n";
       }
       return output;
     }
@@ -61,74 +61,98 @@ class AVLTree{
 
     //returns node if rotations are required, nullptr if not
     AVLNode<T> *adjustHeights(AVLNode<T> *node){
-        while(node != nullptr){
-            if(node->left != nullptr && node -> right != nullptr){
-                if(abs(node->right->height - node->left->height) == 2){
-                    return node;
-                }
-                else if(node->right->height - node->left->height == 0){
-                    return nullptr;
-                }
-                else{ //there's a difference of 1
-                    node -> height += 1;
-                    node = node -> parent;
-                }
-            }
-            else if(node -> left != nullptr){
-                if(node -> left -> height == 2){
-                    return node;
-                }
-                else{
-                    node -> height += 1;
-                    node = node -> parent;
-                }
-            }
-            else{
-                if(node -> right -> height == 2){
-                    return node;
-                }
-                else{
-                    node -> height += 1;
-                    node = node -> parent;
-                }
-            }
+      while(node != nullptr){
+        
+        if(node->left != nullptr && node -> right != nullptr){
+          if(abs(node->right->height - node->left->height) == 2){
+              return node;
+          }
+          else if(node->right->height - node->left->height == 0){
+              return nullptr;
+          }
+          else{ //there's a difference of 1
+              node -> height += 1;
+              node = node -> parent;
+          }
         }
-        return node; //will be nullptr
+
+        else if(node -> left != nullptr){
+          if(node -> left -> height == 2){
+              return node;
+          }
+          else{
+              node -> height += 1;
+              node = node -> parent;
+          }
+        }
+
+        else{
+          if(node -> right -> height == 2){
+              return node;
+          }
+          else{
+              node -> height += 1;
+              node = node -> parent;
+          }
+        }
+      }
+      return node; //will be nullptr
     }
 
 
     //the node passed will be the node the rotation is based off of
     // "single rotation"
     void rotateLeft(AVLNode<T> *node){
-      if(node-> right -> left != nullptr){
+      if(node-> right -> left != nullptr){ //mostly for complicated single and double rotations
         AVLNode<T> *grandchild = node -> right -> left;
+        AVLNode<T> *childNode = node -> right;
 
-        //update parent node
-        if(node->parent == nullptr){
-          root = grandchild;
-        }
-        else if(comparator(node->value, node->parent->value) <= 0){
-          node -> parent -> left = grandchild;
+        
+        if(childNode->right != nullptr && childNode->right->height > grandchild->height){
+          if(node->parent == nullptr){
+            root = childNode;
+          }
+          else if(comparator(node->value, node->parent->value) <= 0){
+            node -> parent -> left = childNode;
+          }
+          else{
+            node -> parent -> right = childNode;
+          }
+
+          node->right = childNode->left;
+          if(childNode->left != nullptr){childNode->left->parent = node;}
+
+          childNode->parent = node->parent;
+          node->parent = childNode;
+          childNode->left = node;
+
+          node->height -=1;
         }
         else{
-          node -> parent -> right = grandchild;
+          if(node->parent == nullptr){
+            root = grandchild;
+          }
+          else if(comparator(node->value, node->parent->value) <= 0){
+            node -> parent -> left = grandchild;
+          }
+          else{
+            node -> parent -> right = grandchild;
+          }
+          
+          childNode->left = grandchild->right;
+          if(grandchild->right != nullptr) {grandchild->right->parent = childNode;}
+          grandchild->parent = node->parent;
+
+          node->right = grandchild->left;
+          if(grandchild->left != nullptr){grandchild->left->parent = node;}
+          grandchild->left = node;
+          grandchild->right = childNode;
+          node-> parent = grandchild;
+
+          node->height -= 1;
+          grandchild -> height += 1;
+          childNode -> height -=1;
         }
-        
-        grandchild -> parent = node -> parent;
-
-        grandchild -> left = node;
-        grandchild -> right = node -> right;
-
-        node -> right -> left = nullptr;
-        node -> right = nullptr;
-
-        node -> parent = grandchild;
-        grandchild -> right -> parent = grandchild;
-
-        //adjust the height
-        grandchild -> height += 1;
-        grandchild -> right -> height -= 1;
-        grandchild -> left -> height -= 1;
       }
 
       else{ //height discrepancy off of two straight right children
@@ -160,33 +184,57 @@ class AVLTree{
     void rotateRight(AVLNode<T> *node){
       if(node-> left -> right != nullptr){
         AVLNode<T> *grandchild = node -> left -> right;
+        AVLNode<T> *childNode = node->left;
 
-        //update parent node
-        if(node->parent == nullptr){
-          root = grandchild;
-        }
-        else if(comparator(node->value, node->parent->value) <= 0){
-          node -> parent -> left = grandchild;
+        if(childNode->left != nullptr && childNode->left->height > grandchild->height){
+          if(node->parent == nullptr){
+            root = childNode;
+          }
+          else if(comparator(node->value, node->parent->value) <= 0){
+            node -> parent -> left = childNode;
+          }
+          else{
+            node -> parent -> right = childNode;
+          }
+
+          node->left = childNode->right;
+          if(childNode->right != nullptr){childNode->right->parent = node;}
+
+          childNode->parent = node->parent;
+          node->parent = childNode;
+          childNode->right = node;
+
+          node->height -=1;
         }
         else{
-          node -> parent -> right = grandchild;
+          if(node->parent == nullptr){
+            root = grandchild;
+          }
+          else if(comparator(node->value, node->parent->value) <= 0){
+            node -> parent -> left = grandchild;
+          }
+          else{
+            node -> parent -> right = grandchild;
+          }
+          
+          grandchild -> parent = node -> parent;
+
+          childNode-> right = grandchild->left;
+          if(grandchild->left != nullptr) {grandchild->left->parent = childNode;}
+          node -> left = grandchild->right;
+          if(grandchild->right != nullptr){grandchild->right->parent = node;}
+
+          grandchild -> right = node;
+          grandchild -> left = childNode;
+
+          node -> parent = grandchild;
+          childNode -> parent = grandchild;
+
+          //adjust the height
+          grandchild -> height += 1;
+          grandchild -> right -> height -= 1;
+          grandchild -> left -> height -= 1;
         }
-        
-        grandchild -> parent = node -> parent;
-
-        grandchild -> right = node;
-        grandchild -> left = node -> left;
-
-        node -> left -> right = nullptr;
-        node -> left = nullptr;
-
-        node -> parent = grandchild;
-        grandchild -> left -> parent = grandchild;
-
-        //adjust the height
-        grandchild -> height += 1;
-        grandchild -> right -> height -= 1;
-        grandchild -> left -> height -= 1;
       }
 
       else{ //height discrepancy off of two straight left children
@@ -215,24 +263,22 @@ class AVLTree{
       }
     }
 
-    /*
+    
     void rotate(AVLNode<T> *node){
-      if(node->left != nullptr && null -> right != nullptr){
-        if(node -> right -> height > node -> left -> height){
-
-        }
-        else{
-
-        }
+      if(node -> left == nullptr){
+        rotateLeft(node);
       }
-      else if(node -> left != nullptr){
-        
+      else if(node -> right == nullptr){
+        rotateRight(node);
       }
+      else if(node->left->height > node->right->height){
+        rotateRight(node);
+      } 
       else{
-
+        rotateLeft(node);
       }
     }
-    */
+    
 
   public:
     
@@ -282,8 +328,7 @@ class AVLTree{
       }
       else{
         cout << "Executing rotation after inserting\n";
-        //rotateLeft(rotateNode);
-        rotateRight(rotateNode);
+        rotate(rotateNode);
       }
       //have to then adust parents' height
       //height = height < counter ? counter : height;
@@ -344,7 +389,17 @@ class AVLTree{
           else{
              node ->parent -> right = replacement;
           }
-
+          
+          /*
+          AVLNode<T> *rotateNode = adjustHeights(replacement->parent);
+          if(rotateNode == nullptr){
+            cout << "No need for rotate\n"; 
+          }
+          else{
+            cout << "Executing rotation after inserting\n";
+            rotate(rotateNode);
+          }
+  */
           delete node;
         }
 
@@ -499,10 +554,80 @@ void rightRotTest2(){
   cout << tree.inOrderTraversalString() << "\n";
 }
 
+//test5
+//complicated left rotation
+void leftRotTest3(){
+  AVLTree<int> tree(compareInt);
+  tree.insert(5);
+  tree.insert(2);
+  tree.insert(12);
+  tree.insert(9);
+  tree.insert(14);
+  tree.insert(4);
+  tree.insert(8);
+  tree.insert(13);
+  tree.insert(11);
+  tree.insert(10);
+
+  cout << tree.inOrderTraversalString() << "\n";
+}
+
+//test6
+//another complicated left rotation
+void leftRotTest4(){
+  AVLTree<int> tree(compareInt);
+  tree.insert(1);
+  tree.insert(0);
+  tree.insert(3);
+  tree.insert(2);
+  tree.insert(4);
+  tree.insert(5);
+
+  cout << tree.inOrderTraversalString() << "\n";
+}
+
+
+//test7
+//complicated right rotation
+void rightRotTest3(){
+  AVLTree<int> tree(compareInt);
+  tree.insert(20);
+  tree.insert(10);
+  tree.insert(22);
+  tree.insert(25);
+  tree.insert(5);
+  tree.insert(15);
+  tree.insert(13);
+  tree.insert(17);
+  tree.insert(3);
+  tree.insert(18);
+
+  cout << tree.inOrderTraversalString() << "\n";
+}
+
+//test7
+//another complicated right rotation
+void rightRotTest4(){
+  AVLTree<int> tree(compareInt);
+  tree.insert(20);
+  tree.insert(22);
+  tree.insert(10);
+  tree.insert(15);
+  tree.insert(5);
+  tree.insert(3);
+
+  cout << tree.inOrderTraversalString() << "\n";
+}
+
 int main(){
   //leftRotTest();
   //leftRotTest2();
-  //rightRotTest();
+  //leftRotTest3();
+  //leftRotTest4();
+
+  rightRotTest();
   rightRotTest2();
+  rightRotTest3();
+  rightRotTest4();
 }
   
