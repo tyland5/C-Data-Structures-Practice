@@ -99,6 +99,47 @@ class AVLTree{
       return node; //will be nullptr
     }
 
+    AVLNode<T> *postRemovalAdjust(AVLNode<T> *node){
+      while(node != nullptr){
+        if(node->left != nullptr && node -> right != nullptr){
+          if(abs(node->right->height - node->left->height) == 2){
+              node->height -= 1; //necessary based on how I implemented code
+              return node;
+          }
+          else if(node->right->height - node->left->height == 0){
+              node->height -= 1;
+              node = node->parent;
+          }
+          else{ //there's a difference of 1
+              //no height change should be necessary since removing and have other height that's greater
+              node = node -> parent;
+          }
+        }
+
+        else if(node -> left != nullptr){
+          if(node -> left -> height == 2){
+              node->height -=1;
+              return node;
+          }
+          else{
+              node -> height -= 1;
+              node = node -> parent;
+          }
+        }
+
+        else{
+          if(node -> right -> height == 2){
+              node->height -=1;
+              return node;
+          }
+          else{
+              node -> height -= 1;
+              node = node -> parent;
+          }
+        }
+      }
+      return node; //nullptr
+    }
 
     //the node passed will be the node the rotation is based off of
     // "single rotation"
@@ -323,11 +364,8 @@ class AVLTree{
       node -> height = 1;
       AVLNode <T> *rotateNode = adjustHeights(node->parent);
 
-      if(rotateNode == nullptr){
-        cout << "No need for rotate\n"; 
-      }
-      else{
-        cout << "Executing rotation after inserting\n";
+      if(rotateNode != nullptr){
+        cout << "Executing rotation after inserting " << to_string(value) << "\n";
         rotate(rotateNode);
       }
       //have to then adust parents' height
@@ -359,6 +397,8 @@ class AVLTree{
         
         if(node->left != nullptr){
           replacement = rightMostNode(node->left);
+          AVLNode<T> *adjustStartNode = replacement -> parent;
+
           cout << "replacement node is: " << replacement -> value << "\n";
           //update replacement's child node, replacement's parent node, and then itself
           if(replacement != node->left){
@@ -390,23 +430,24 @@ class AVLTree{
              node ->parent -> right = replacement;
           }
           
-          /*
-          AVLNode<T> *rotateNode = adjustHeights(replacement->parent);
-          if(rotateNode == nullptr){
-            cout << "No need for rotate\n"; 
-          }
-          else{
-            cout << "Executing rotation after inserting\n";
+          replacement -> height = node->height;
+          AVLNode<T> *rotateNode = postRemovalAdjust(node->parent);
+          
+          //needed to update rest of heights
+          while(rotateNode != nullptr){
+            cout << "Executing rotation after removing " << to_string(val) <<"\n";
             rotate(rotateNode);
+            rotateNode = postRemovalAdjust(rotateNode->parent->parent); 
           }
-  */
+          
           delete node;
         }
 
         //done
         else if(node->right != nullptr){
           replacement = leftMostNode(node -> right);
-          
+          AVLNode<T> *adjustStartNode = replacement -> parent;
+
           cout << "replacement node is: " << replacement -> value << "\n";
           //update replacement's child node and then itself
           if(replacement != node->right){
@@ -438,6 +479,16 @@ class AVLTree{
              node ->parent -> right = replacement;
           }
 
+          replacement -> height = node->height;
+          AVLNode<T> *rotateNode = postRemovalAdjust(node->parent);
+
+          //needed to update rest of heights
+          while(rotateNode != nullptr){
+            cout << "Executing rotation after removing " << to_string(val) <<"\n";
+            rotate(rotateNode);
+            rotateNode = postRemovalAdjust(rotateNode->parent->parent); 
+          }
+
           delete node; //free space
         }
 
@@ -454,6 +505,15 @@ class AVLTree{
           }
           else{
              node ->parent -> right = nullptr;
+          }
+
+          AVLNode<T> *rotateNode = postRemovalAdjust(node->parent);
+          
+          //needed to update rest of heights
+          while(rotateNode != nullptr){
+            cout << "Executing rotation after removing " << to_string(val) <<"\n";
+            rotate(rotateNode);
+            rotateNode = postRemovalAdjust(rotateNode->parent->parent); 
           }
 
           delete node;
@@ -619,15 +679,42 @@ void rightRotTest4(){
   cout << tree.inOrderTraversalString() << "\n";
 }
 
+void removalTest(){
+  AVLTree<int> tree(compareInt);
+  tree.insert(10);
+  tree.insert(5);
+  tree.insert(15);
+  tree.insert(3);
+  tree.insert(13);
+  tree.insert(17);
+  tree.insert(18);
+  tree.remove(13);
+
+  cout << tree.inOrderTraversalString() << "\n";
+}
+
+void removalTest2(){
+  AVLTree<int> tree(compareInt);
+  tree.insert(10);
+  tree.insert(3);
+  tree.insert(22);
+  tree.insert(1);
+  tree.remove(22);
+
+  cout << tree.inOrderTraversalString() << "\n";
+}
+
 int main(){
   //leftRotTest();
   //leftRotTest2();
   //leftRotTest3();
   //leftRotTest4();
 
-  rightRotTest();
-  rightRotTest2();
-  rightRotTest3();
-  rightRotTest4();
+  //rightRotTest();
+  //rightRotTest2();
+  //rightRotTest3();
+  //rightRotTest4();
+  removalTest();
+  removalTest2();
 }
   
